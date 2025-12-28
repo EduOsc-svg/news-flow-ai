@@ -12,7 +12,7 @@ export function HeroArticle({ article }: HeroArticleProps) {
   return (
     <Link 
       to={`/article/${article.id}`}
-      className="group relative block overflow-hidden rounded-lg aspect-[16/9] md:aspect-[21/9] news-card-shadow hover-lift"
+      className="group relative block overflow-hidden rounded-lg aspect-[4/5] sm:aspect-[16/9] md:aspect-[21/9] news-card-shadow hover-lift"
     >
       {/* Background Image */}
       <div className="absolute inset-0">
