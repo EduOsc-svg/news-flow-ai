@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { isSocialUrl } from '@/lib/utils';
 
 interface SocialEmbedProps {
@@ -7,49 +7,79 @@ interface SocialEmbedProps {
 
 export function SocialEmbed({ url }: SocialEmbedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
   const { isTikTok, isInstagram } = isSocialUrl(url);
 
   useEffect(() => {
-    if (isTikTok) {
-      // Load TikTok embed script
-      const existingScript = document.querySelector('script[src="https://www.tiktok.com/embed.js"]');
-      if (!existingScript) {
-        const script = document.createElement('script');
-        script.src = 'https://www.tiktok.com/embed.js';
-        script.async = true;
-        document.body.appendChild(script);
-      } else {
-        // Re-process embeds if script already loaded
-        if ((window as any).tiktokEmbed?.lib?.render) {
-          (window as any).tiktokEmbed.lib.render();
-        }
-      }
-    }
+    // Reset loaded state when URL changes
+    setIsLoaded(false);
 
-    if (isInstagram) {
-      // Load Instagram embed script
-      const existingScript = document.querySelector('script[src="https://www.instagram.com/embed.js"]');
-      if (!existingScript) {
-        const script = document.createElement('script');
-        script.src = 'https://www.instagram.com/embed.js';
-        script.async = true;
-        document.body.appendChild(script);
-      } else {
-        // Re-process embeds if script already loaded
-        if ((window as any).instgrm?.Embeds?.process) {
-          (window as any).instgrm.Embeds.process();
+    const loadEmbed = () => {
+      if (isTikTok) {
+        const existingScript = document.querySelector('script[src="https://www.tiktok.com/embed.js"]');
+        if (!existingScript) {
+          const script = document.createElement('script');
+          script.src = 'https://www.tiktok.com/embed.js';
+          script.async = true;
+          script.onload = () => {
+            setIsLoaded(true);
+            setTimeout(() => {
+              if ((window as any).tiktokEmbed?.lib?.render) {
+                (window as any).tiktokEmbed.lib.render();
+              }
+            }, 100);
+          };
+          document.body.appendChild(script);
+        } else {
+          setIsLoaded(true);
+          setTimeout(() => {
+            if ((window as any).tiktokEmbed?.lib?.render) {
+              (window as any).tiktokEmbed.lib.render();
+            }
+          }, 100);
         }
       }
-    }
+
+      if (isInstagram) {
+        const existingScript = document.querySelector('script[src="https://www.instagram.com/embed.js"]');
+        if (!existingScript) {
+          const script = document.createElement('script');
+          script.src = 'https://www.instagram.com/embed.js';
+          script.async = true;
+          script.onload = () => {
+            setIsLoaded(true);
+            setTimeout(() => {
+              if ((window as any).instgrm?.Embeds?.process) {
+                (window as any).instgrm.Embeds.process();
+              }
+            }, 100);
+          };
+          document.body.appendChild(script);
+        } else {
+          setIsLoaded(true);
+          setTimeout(() => {
+            if ((window as any).instgrm?.Embeds?.process) {
+              (window as any).instgrm.Embeds.process();
+            }
+          }, 100);
+        }
+      }
+    };
+
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(loadEmbed, 50);
+    return () => clearTimeout(timer);
   }, [isTikTok, isInstagram, url]);
 
   if (isTikTok) {
+    const videoId = url.match(/video\/(\d+)/)?.[1] || '';
+    
     return (
       <div className="my-8 flex justify-center" ref={containerRef}>
         <blockquote
           className="tiktok-embed"
           cite={url}
-          data-video-id={url.match(/video\/(\d+)/)?.[1] || ''}
+          data-video-id={videoId}
           style={{ maxWidth: '605px', minWidth: '325px' }}
         >
           <section>
