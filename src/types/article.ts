@@ -1,3 +1,5 @@
+export type Category = 'nasional' | 'tech' | 'lifestyle' | 'viral' | 'social';
+
 export type Article = {
   id: string;
   title: string;
@@ -5,7 +7,7 @@ export type Article = {
   excerpt: string | null;
   source_url: string | null;
   thumbnail_url: string | null;
-  category: 'nasional' | 'tech' | 'lifestyle' | 'viral' | 'social';
+  category: Category;
   is_published: boolean;
   is_breaking: boolean;
   view_count: number;
@@ -21,8 +23,6 @@ export type ArticleInsert = Omit<Article, 'id' | 'created_at' | 'updated_at' | '
 };
 
 export type ArticleUpdate = Partial<ArticleInsert>;
-
-export type Category = Article['category'];
 
 export const CATEGORIES: { value: Category; label: string }[] = [
   { value: 'nasional', label: 'Nasional' },
